@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="./assets/pdfIcon.png" />
+    <!-- fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@10..48,200;10..48,400;10..48,600&family=Kanit:wght@200;300;400&family=Playfair+Display:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <!-- icons -->
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link rel="stylesheet" href="index.css" />
+    <title>Textify PDF</title>
+  </head>
+  <body>
+    <h1>PDF <span class="node">to</span> <span class="text">TEXT</span></h1>
+    <div class="workarea">
+      <label title="Upload PDF File Here" id="labelFile">
+        <input
+          type="file"
+          name="filePDF"
+          accept="application/pdf"
+          title="PDF Document"
+          id="uploadfile"
+          required
+          autocomplete="off"
+          hidden
+        />
+        Upload PDF
+      </label>
+      <button id="uploadBtn" disabled>Convert</button>
+      <div style="display: flex;flex-direction: column;gap: 3px;">
+     <i class='bx bx-copy-alt' id="copyit" onclick="copyText()" style="color:#215732" >copy</i>
+      <textarea
+        id="pdftext"
+        rows="10"
+        placeholder="Text from PDF goes here..."
+      ></textarea>
+      </div>
+    </div>
+    <script>
+      let uploadfile = document.getElementById("uploadfile");
+      let labelFile= document.getElementById("labelFile");
+      let uploadBtn = document.getElementById("uploadBtn");
+      let PdfText = document.getElementById("pdftext");
+
+      
+        function copyText(){
+            PdfText.select();
+            document.execCommand("copy");
+        }
+
+
+        if (uploadfile.value.length==0){
+            uploadBtn.style.cursor="not-allowed";
+        }
+        uploadfile.addEventListener("click",() =>{
+            uploadBtn.disabled=false;
+            uploadBtn.style.cursor="pointer";
+        })
+      uploadBtn.addEventListener("click", () => {
+        // sending request and getting data
+        labelFile.innerHTML="File Conversion Success";
+        labelFile.style.color="#215732";
+        labelFile.style.fontSize="2vw";
+        const data = new FormData();
+        data.append("pdfFile", uploadfile.files[0]);
+        fetch("/extract-text", {
+          method: "post",
+          body: data,
+        })
+          .then(dataGot => {
+            return dataGot.text();
+          })
+          .then(textFromPdf => {
+            PdfText.value = textFromPdf;
+            console.log(textFromPdf);
+          });
+      });
+    </script>
+  </body>
+</html>
